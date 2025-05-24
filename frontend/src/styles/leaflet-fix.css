@@ -1,0 +1,41 @@
+/* Solución para arreglar problemas de CSS con Leaflet en React */
+
+/* Asegurar que el contenedor del mapa tenga posición relativa */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Asegurar que los íconos de Leaflet se muestren correctamente */
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  box-shadow: none;
+  border: none;
+}
+
+/* Corregir problemas de z-index con los popups */
+.leaflet-popup-content-wrapper, 
+.leaflet-popup-tip {
+  background: white;
+  color: #333;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+  line-height: 1.4;
+}
+
+.leaflet-popup-content p {
+  margin: 16px 0;
+}
+
+/* Hacer que los controles del mapa sean un poco más grandes en dispositivos táctiles */
+@media (max-width: 767px) {
+  .leaflet-control-zoom a {
+    width: 30px !important;
+    height: 30px !important;
+    line-height: 30px !important;
+  }
+} 
