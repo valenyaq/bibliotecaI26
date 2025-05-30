@@ -7,6 +7,7 @@ require('dotenv').config();
 const librosRoutes = require('./routes/libros.routes');
 const adminRoutes = require('./routes/admin.routes');
 const generosRoutes = require('./routes/generos.routes');
+const valoracionesRoutes = require('./routes/valoraciones.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,6 +25,7 @@ app.use('/public', express.static(path.join(__dirname, '../public')));
 app.use('/api/libros', librosRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/generos', generosRoutes);
+app.use('/api/valoraciones', valoracionesRoutes);
 
 // Ruta para servir el worker de PDF.js
 app.get('/pdf.worker.js', (req, res) => {

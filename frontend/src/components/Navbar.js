@@ -9,6 +9,9 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  
+  // Determinar si estamos en el panel de administración o en el sitio principal
+  const isAdminPanel = location.pathname.startsWith('/admin');
 
   // Extraer término de búsqueda de la URL al cargar
   useEffect(() => {
@@ -56,7 +59,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo y nombre */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
               {/* Espacio para el logo del instituto */}
               <img 
@@ -70,6 +73,16 @@ const Navbar = () => {
               />
               <span className="font-bold text-2xl text-gray-800">Biblioteca ISFDyT 26</span>
             </Link>
+            
+            {/* Botón Ver Dashboard/Ver Sitio */}
+            {isAdmin() && (
+              <Link 
+                to={isAdminPanel ? "/" : "/admin"}
+                className="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transform hover:scale-105 transition duration-300 shadow-sm"
+              >
+                {isAdminPanel ? "Ver Sitio" : "Ver Dashboard"}
+              </Link>
+            )}
           </div>
 
           {/* Búsqueda (escritorio) */}
@@ -106,24 +119,7 @@ const Navbar = () => {
                 Contacto
               </Link>
               
-              {isAdmin() && (
-                <div className="relative group">
-                  <button className="flex items-center text-gray-800 hover:text-[#a2822b] px-3 py-2 rounded-md font-medium transition duration-300">
-                    Admin <span className="ml-1">▼</span>
-                  </button>
-                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block animate-fadeIn">
-                    <Link to="/admin/libros" className="block px-4 py-2 text-gray-800 hover:bg-[#a2822b] hover:text-white transition duration-200">
-                      Administrar Libros
-                    </Link>
-                    <Link to="/admin/generos" className="block px-4 py-2 text-gray-800 hover:bg-[#a2822b] hover:text-white transition duration-200">
-                      Administrar Géneros
-                    </Link>
-                    <Link to="/admin/usuarios" className="block px-4 py-2 text-gray-800 hover:bg-[#a2822b] hover:text-white transition duration-200">
-                      Administrar Usuarios
-                    </Link>
-                  </div>
-                </div>
-              )}
+
               
               {isAuthenticated() && (
                 <button

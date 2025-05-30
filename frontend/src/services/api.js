@@ -18,15 +18,12 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     
-    // Para depuración - imprimir información sobre la solicitud
-    console.log(`Solicitud a ${config.url} - Token: ${token ? 'Presente' : 'Ausente'}`);
-    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
       
       // Asegurarse de no sobrescribir el Content-Type para FormData
       if (config.headers['Content-Type'] === 'multipart/form-data') {
-        console.log('Solicitud con FormData - manteniendo Content-Type como multipart/form-data');
+        // Mantener el Content-Type existente para FormData
       } else {
         config.headers['Content-Type'] = 'application/json';
       }
@@ -35,7 +32,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('Error en interceptor de solicitud:', error);
+    console.error('Error al preparar la solicitud');
     return Promise.reject(error);
   }
 );
@@ -47,16 +44,23 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      console.error('Error de respuesta:', error.response.status, error.response.data);
+      console.error(`Error de respuesta: ${error.response.status}`);
       
       // Si recibimos un 401 (no autorizado), podría ser que el token expiró
       if (error.response.status === 401) {
-        console.log('Error de autenticación - token inválido o expirado');
+        console.log('Sesión expirada o inválida');
+        // Cerrar sesión automáticamente
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Redireccionar al login si estamos en producción
+        if (process.env.NODE_ENV === 'production') {
+          window.location.href = '/login';
+        }
       }
     } else if (error.request) {
-      console.error('Error de solicitud (sin respuesta):', error.request);
+      console.error('Error de conexión con el servidor');
     } else {
-      console.error('Error al configurar la solicitud:', error.message);
+      console.error('Error en la configuración de la solicitud');
     }
     
     return Promise.reject(error);

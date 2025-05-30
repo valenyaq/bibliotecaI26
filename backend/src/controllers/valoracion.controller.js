@@ -41,22 +41,8 @@ const createValoracion = async (req, res) => {
     await testConnection();
     const libroId = req.params.id;
     
+    // Los datos ya fueron validados por el middleware de Joi
     const { puntuacion, comentario, nombre_usuario } = req.body;
-    
-    // Validar datos
-    if (!puntuacion || puntuacion < 1 || puntuacion > 5) {
-      return res.status(400).json({
-        success: false,
-        message: 'Datos inválidos. Se requiere puntuación (1-5)'
-      });
-    }
-    
-    if (!nombre_usuario || nombre_usuario.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        message: 'Se requiere proporcionar un nombre'
-      });
-    }
     
     // Crear nueva valoración
     const valoracionData = {
@@ -91,8 +77,25 @@ const createValoracion = async (req, res) => {
   }
 };
 
+// Obtener todas las valoraciones
+const getAllValoraciones = async (req, res) => {
+  try {
+    await testConnection(); // Verificar conexión a la BD
+    const valoraciones = await valoracionModel.getAllValoraciones();
+    res.json(valoraciones);
+  } catch (error) {
+    console.error('Error al obtener todas las valoraciones:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al obtener todas las valoraciones',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getValoracionesByLibro,
   getPromedioByLibro,
-  createValoracion
+  createValoracion,
+  getAllValoraciones
 };

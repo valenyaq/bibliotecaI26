@@ -96,56 +96,9 @@ const changePassword = async (req, res) => {
   }
 };
 
-// Obtener perfil del administrador
-const getProfile = async (req, res) => {
-  try {
-    res.json({
-      id: req.user.id,
-      username: req.user.username,
-      isAdmin: req.user.isAdmin
-    });
-  } catch (error) {
-    console.error('Error al obtener perfil:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error en el servidor al obtener el perfil',
-      error: error.message
-    });
-  }
-};
-
-// Crear un nuevo administrador (solo para desarrollo/setup inicial)
-const createAdmin = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    
-    if (!username || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Se requiere nombre de usuario y contraseña'
-      });
-    }
-    
-    const adminId = await adminModel.createAdmin({ username, password });
-    
-    res.status(201).json({
-      success: true,
-      message: 'Administrador creado correctamente',
-      adminId
-    });
-  } catch (error) {
-    console.error('Error al crear administrador:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error en el servidor al crear administrador',
-      error: error.message
-    });
-  }
-};
+// Nota: Las funciones getProfile y createAdmin han sido eliminadas por razones de seguridad
 
 module.exports = {
   login,
-  changePassword,
-  getProfile,
-  createAdmin
-}; 
+  changePassword
+};

@@ -71,7 +71,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center">
                 <MdLocationOn className="h-5 w-5 mr-2 text-yellow-200" />
-                <span className="text-gray-300">Buenos Aires, Argentina</span>
+                <span className="text-gray-300">Dolores,Buenos Aires, Argentina</span>
               </li>
               <li className="flex items-center">
                 <MdPhone className="h-5 w-5 mr-2 text-yellow-200" />

@@ -37,7 +37,7 @@ const SearchPage = () => {
         .replace(/[\u0300-\u036f]/g, "");
       
       // Filtrar libros que coincidan parcialmente con el término de búsqueda
-      // en título, autor o descripción
+      // solo en título o autor
       const filtered = libros.filter(libro => {
         const normalizedTitulo = libro.titulo.toLowerCase()
           .normalize("NFD")
@@ -47,16 +47,9 @@ const SearchPage = () => {
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
         
-        const normalizedDescripcion = libro.descripcion 
-          ? libro.descripcion.toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-          : "";
-        
-        // Verificar si el término de búsqueda aparece en alguno de los campos
+        // Verificar si el término de búsqueda aparece en título o autor
         return normalizedTitulo.includes(normalizedSearchTerm) || 
-               normalizedAutor.includes(normalizedSearchTerm) || 
-               normalizedDescripcion.includes(normalizedSearchTerm);
+               normalizedAutor.includes(normalizedSearchTerm);
       });
       
       setFilteredLibros(filtered);

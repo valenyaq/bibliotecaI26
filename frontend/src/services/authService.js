@@ -3,21 +3,31 @@ import api from './api';
 // Login del administrador
 export const loginAdmin = async (credentials) => {
   try {
-    console.log("Intentando iniciar sesión como admin con:", credentials);
+    // Validar datos antes de enviar
+    if (!credentials.username || !credentials.password) {
+      throw new Error('El nombre de usuario y la contraseña son obligatorios');
+    }
+    
+    if (credentials.username.length < 3) {
+      throw new Error('El nombre de usuario debe tener al menos 3 caracteres');
+    }
+    
+    if (credentials.password.length < 8) {
+      throw new Error('La contraseña debe tener al menos 8 caracteres');
+    }
+    
+    console.log("Iniciando proceso de autenticación");
     const response = await api.post('/admin/login', credentials);
     
-    console.log("Respuesta del login:", response.data);
+    console.log("Autenticación completada");
     
     // Guardar el token en localStorage
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      // Verificar que el token se guardó correctamente
-      const savedToken = localStorage.getItem('token');
-      console.log("Token guardado correctamente:", !!savedToken);
+      console.log("Sesión iniciada correctamente");
     } else {
-      console.error("No se recibió token en la respuesta del servidor");
+      console.error("Error en la respuesta de autenticación");
     }
     
     return response.data;
@@ -30,33 +40,28 @@ export const loginAdmin = async (credentials) => {
 // Verificar si el usuario está autenticado
 export const isAuthenticated = () => {
   const token = localStorage.getItem('token');
-  const result = !!token;
-  console.log("isAuthenticated:", result, "token:", token ? "existe" : "no existe");
-  return result;
+  return !!token;
 };
 
 // Verificar si el usuario es administrador
 export const isAdmin = () => {
   const userStr = localStorage.getItem('user');
   if (!userStr) {
-    console.log("isAdmin: false (no hay datos de usuario)");
     return false;
   }
   
   try {
     const user = JSON.parse(userStr);
-    const result = user.isAdmin === true;
-    console.log("isAdmin:", result, "user:", user);
-    return result;
+    return user.isAdmin === true;
   } catch (error) {
-    console.error("Error al comprobar isAdmin:", error);
+    console.error("Error al procesar datos de usuario");
     return false;
   }
 };
 
 // Cerrar sesión
 export const logout = () => {
-  console.log("Cerrando sesión, eliminando token y datos de usuario");
+  console.log("Cerrando sesión");
   localStorage.removeItem('token');
   localStorage.removeItem('user');
 };
@@ -65,16 +70,13 @@ export const logout = () => {
 export const getCurrentUser = () => {
   const userStr = localStorage.getItem('user');
   if (!userStr) {
-    console.log("getCurrentUser: No hay datos de usuario");
     return null;
   }
   
   try {
-    const user = JSON.parse(userStr);
-    console.log("getCurrentUser:", user);
-    return user;
+    return JSON.parse(userStr);
   } catch (error) {
-    console.error("Error al obtener usuario actual:", error);
+    console.error("Error al procesar datos de usuario");
     return null;
   }
-}; 
+};

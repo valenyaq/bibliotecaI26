@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -7,15 +7,61 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({
+    username: '',
+    password: ''
+  });
   
   const { login } = useAuth();
   const navigate = useNavigate();
   
+  // Validar campos cuando cambian
+  useEffect(() => {
+    validateUsername(username);
+  }, [username]);
+
+  useEffect(() => {
+    validatePassword(password);
+  }, [password]);
+
+  // Funciones de validación
+  const validateUsername = (value) => {
+    let error = '';
+    if (!value.trim()) {
+      error = 'El nombre de usuario es obligatorio';
+    } else if (value.trim().length < 3) {
+      error = 'El nombre de usuario debe tener al menos 3 caracteres';
+    }
+    
+    setValidationErrors(prev => ({ ...prev, username: error }));
+    return error === '';
+  };
+
+  const validatePassword = (value) => {
+    let error = '';
+    if (!value) {
+      error = 'La contraseña es obligatoria';
+    } else if (value.length < 8) {
+      error = 'La contraseña debe tener al menos 8 caracteres';
+    }
+    
+    setValidationErrors(prev => ({ ...prev, password: error }));
+    return error === '';
+  };
+
+  // Validar todo el formulario
+  const validateForm = () => {
+    const isUsernameValid = validateUsername(username);
+    const isPasswordValid = validatePassword(password);
+    return isUsernameValid && isPasswordValid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!username.trim() || !password.trim()) {
-      setError('Por favor, completa todos los campos');
+    // Validar formulario completo antes de enviar
+    if (!validateForm()) {
+      setError('Por favor, corrige los errores en el formulario');
       return;
     }
     
@@ -24,9 +70,9 @@ const LoginPage = () => {
       setLoading(true);
       
       await login({ username, password });
-      navigate('/admin/libros');
+      navigate('/admin'); // Redirigir al dashboard en lugar de la página de libros
     } catch (err) {
-      console.error('Error al iniciar sesión:', err);
+      // Mostrar mensaje de error sin exponer detalles sensibles
       setError(
         err.response?.data?.message || 
         'Error al iniciar sesión. Verifica tus credenciales e intenta de nuevo.'
@@ -65,11 +111,14 @@ const LoginPage = () => {
                 name="username"
                 type="text"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${validationErrors.username ? 'border-red-500' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                 placeholder="Nombre de usuario"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
+              {validationErrors.username && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.username}</p>
+              )}
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
@@ -80,11 +129,14 @@ const LoginPage = () => {
                 name="password"
                 type="password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${validationErrors.password ? 'border-red-500' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                 placeholder="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              {validationErrors.password && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.password}</p>
+              )}
             </div>
           </div>
 

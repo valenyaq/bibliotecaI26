@@ -57,7 +57,7 @@ const ContactoPage = () => {
                   <MdLocationOn className="h-6 w-6 mr-3 mt-1" />
                   <div>
                     <h3 className="font-medium">Dirección</h3>
-                    <p className="mt-1">Calle Falsa 123, Buenos Aires, Argentina</p>
+                    <p className="mt-1">Calle Marquez 51, Dolores, Buenos Aires, Argentina</p>
                   </div>
                 </div>
                 

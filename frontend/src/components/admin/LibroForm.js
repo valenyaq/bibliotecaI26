@@ -74,6 +74,24 @@ const LibroForm = ({ libro, onSuccess, onCancel }) => {
     
     const file = files[0];
     
+    // Validar tipo de archivo
+    if (name === 'portada' && !file.type.startsWith('image/')) {
+      setError('El archivo seleccionado para la portada no es una imagen válida');
+      // Limpiar el input de archivo
+      e.target.value = '';
+      return;
+    }
+    
+    if (name === 'archivo' && file.type !== 'application/pdf') {
+      setError('El archivo seleccionado debe ser un PDF');
+      // Limpiar el input de archivo
+      e.target.value = '';
+      return;
+    }
+    
+    // Si el archivo es válido, limpiar el mensaje de error
+    setError(null);
+    
     setFormData({
       ...formData,
       [name]: file
@@ -94,13 +112,33 @@ const LibroForm = ({ libro, onSuccess, onCancel }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validaciones adicionales antes de enviar
+    if (!formData.titulo.trim()) {
+      setError('El título es obligatorio');
+      return;
+    }
+    
+    if (!formData.autor.trim()) {
+      setError('El autor es obligatorio');
+      return;
+    }
+    
+    // Si es un nuevo libro, validar que se hayan subido los archivos necesarios
+    if (!libro && !formData.portada) {
+      setError('Debes seleccionar una imagen para la portada');
+      return;
+    }
+    
+    if (!libro && !formData.archivo) {
+      setError('Debes seleccionar un archivo PDF del libro');
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     
     try {
-      // Mostrar información para depuración
-      console.log("Datos del formulario a enviar:", formData);
-      
       // Verificar el token antes de enviar
       const token = localStorage.getItem('token');
       if (!token) {
@@ -110,11 +148,11 @@ const LibroForm = ({ libro, onSuccess, onCancel }) => {
       if (libro) {
         // Actualizar libro existente
         const result = await updateLibro(libro.id, formData);
-        console.log("Respuesta de actualización:", result);
+        console.log("Libro actualizado correctamente");
       } else {
         // Crear nuevo libro
         const result = await createLibro(formData);
-        console.log("Respuesta de creación:", result);
+        console.log("Libro creado correctamente");
       }
       
       // Notificar éxito
@@ -135,6 +173,12 @@ const LibroForm = ({ libro, onSuccess, onCancel }) => {
         setPreviewPortada(null);
         setPortadaFileName('');
         setArchivoFileName('');
+        
+        // Limpiar los inputs de archivo
+        const portadaInput = document.querySelector('input[name="portada"]');
+        const archivoInput = document.querySelector('input[name="archivo"]');
+        if (portadaInput) portadaInput.value = '';
+        if (archivoInput) archivoInput.value = '';
       }
     } catch (err) {
       console.error('Error al guardar libro:', err);

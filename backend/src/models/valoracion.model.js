@@ -53,9 +53,16 @@ const countValoraciones = async (libroId) => {
   return resultado[0].total;
 };
 
+// Obtener todas las valoraciones
+const getAllValoraciones = async () => {
+  const sql = 'SELECT * FROM valoraciones ORDER BY fecha DESC';
+  return await query(sql);
+};
+
 module.exports = {
   getValoracionesByLibroId,
   createValoracion,
   getValoracionPromedio,
-  countValoraciones
+  countValoraciones,
+  getAllValoraciones
 }; 

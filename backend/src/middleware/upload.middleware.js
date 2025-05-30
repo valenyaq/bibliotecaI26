@@ -43,11 +43,20 @@ const storage = multer.diskStorage({
 // Filtro para archivos
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === 'portada') {
-    // Filtro para imágenes
-    if (file.mimetype.startsWith('image/')) {
+    // Filtro para imágenes (acepta jpg, jpeg, png, webp, gif, svg)
+    const allowedImageTypes = [
+      'image/jpeg', 
+      'image/jpg', 
+      'image/png', 
+      'image/webp', 
+      'image/gif', 
+      'image/svg+xml'
+    ];
+    
+    if (allowedImageTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Por favor sube solo imágenes para la portada'), false);
+      cb(new Error('Por favor sube solo imágenes (JPG, PNG, WEBP, GIF o SVG) para la portada'), false);
     }
   } else if (file.fieldname === 'archivo') {
     // Filtro para PDFs

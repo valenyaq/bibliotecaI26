@@ -10,6 +10,17 @@ export const getValoracionesByLibroId = async (libroId) => {
   }
 };
 
+// Obtener todas las valoraciones
+export const getAllValoraciones = async () => {
+  try {
+    const response = await api.get('/valoraciones');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener todas las valoraciones:', error);
+    return [];
+  }
+};
+
 // Crear una nueva valoración
 export const createValoracion = async (valoracionData) => {
   try {

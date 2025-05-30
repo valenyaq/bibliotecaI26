@@ -4,6 +4,7 @@ const libroController = require('../controllers/libro.controller');
 const valoracionController = require('../controllers/valoracion.controller');
 const { isAdmin } = require('../middleware/auth.middleware');
 const { uploadArchivos, handleMulterError } = require('../middleware/upload.middleware');
+const { validateLibro, validateValoracion } = require('../middleware/joi.validation.middleware');
 const path = require('path');
 
 // Rutas públicas
@@ -55,11 +56,11 @@ router.get('/:id', libroController.getLibroById);
 // Rutas para valoraciones (públicas)
 router.get('/:id/valoraciones', valoracionController.getValoracionesByLibro);
 router.get('/:id/valoraciones/promedio', valoracionController.getPromedioByLibro);
-router.post('/:id/valoraciones', valoracionController.createValoracion);
+router.post('/:id/valoraciones', validateValoracion, valoracionController.createValoracion);
 
 // Rutas privadas (solo administrador)
-router.post('/', isAdmin, uploadArchivos, handleMulterError, libroController.createLibro);
-router.put('/:id', isAdmin, uploadArchivos, handleMulterError, libroController.updateLibro);
+router.post('/', isAdmin, uploadArchivos, handleMulterError, validateLibro, libroController.createLibro);
+router.put('/:id', isAdmin, uploadArchivos, handleMulterError, validateLibro, libroController.updateLibro);
 router.delete('/:id', isAdmin, libroController.deleteLibro);
 
 module.exports = router; 
