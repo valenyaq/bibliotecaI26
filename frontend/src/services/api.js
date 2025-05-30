@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Usar URL relativa en producción o la URL de desarrollo local
+// Usar URL de la API en producción o la URL de desarrollo local
 const BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api' 
+  ? process.env.REACT_APP_API_URL || 'https://biblioteca-virtual-api.onrender.com/api' 
   : 'http://localhost:3001/api';
 
 // Crear instancia de axios con URL base

@@ -19,6 +19,46 @@ El proyecto está dividido en dos partes principales:
 
 ### Backend
 
+## Despliegue
+
+El proyecto está configurado para ser desplegado fácilmente en servicios gratuitos.
+
+### Despliegue del Backend (Render)
+
+1. Crea una cuenta en [Render](https://render.com/) si aún no tienes una
+2. En el dashboard de Render, selecciona "New" y luego "Blueprint"
+3. Conecta tu repositorio de GitHub
+4. Render detectará automáticamente el archivo `render.yaml` y configurará los servicios
+5. Haz clic en "Apply" para iniciar el despliegue
+
+### Despliegue del Frontend (Netlify)
+
+1. Crea una cuenta en [Netlify](https://www.netlify.com/) si aún no tienes una
+2. En el dashboard de Netlify, haz clic en "Add new site" y selecciona "Import an existing project"
+3. Conecta tu repositorio de GitHub
+4. Configura las opciones de construcción (Netlify detectará automáticamente el archivo `netlify.toml`)
+   - Build command: `npm run build`
+   - Publish directory: `build`
+5. Haz clic en "Deploy site"
+
+### Variables de Entorno
+
+Asegúrate de configurar las siguientes variables de entorno en Render:
+
+- `NODE_ENV`: `production`
+- `PORT`: `10000` (o el puerto que prefieras)
+- `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`: Configuración de tu base de datos
+- `JWT_SECRET`: Una cadena aleatoria para firmar los tokens JWT
+- `FRONTEND_URL`: URL de tu aplicación frontend en Netlify
+
+En Netlify, configura:
+
+- `REACT_APP_API_URL`: URL completa de tu API en Render (ej. `https://biblioteca-virtual-api.onrender.com/api`)
+
+## Configuración
+
+### Backend
+
 1. Navega a la carpeta del backend:
    ```
    cd backend
