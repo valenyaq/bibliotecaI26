@@ -4,6 +4,7 @@
 
 [build.environment]
   REACT_APP_API_URL = "https://biblioteca-virtual-api.onrender.com/api"
+  CI = "false"
 
 [[redirects]]
   from = "/*"
