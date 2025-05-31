@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3001;
 // Middlewares
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://biblioteca-virtual-app.netlify.app', process.env.FRONTEND_URL].filter(Boolean)
+    ? ['https://biblioteca-pa.netlify.app', 'https://biblioteca-virtual-app.netlify.app', process.env.FRONTEND_URL].filter(Boolean)
     : 'http://localhost:3000',
   credentials: true
 }));
