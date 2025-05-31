@@ -9,7 +9,10 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'biblioteca_virtual',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  connectTimeout: 60000, // Aumentar el tiempo de espera a 60 segundos
+  acquireTimeout: 60000, // Tiempo de espera para adquirir una conexión
+  timeout: 60000 // Tiempo de espera general
 });
 
 // Verificar conexión a la base de datos
