@@ -3,7 +3,7 @@ const router = express.Router();
 const libroController = require('../controllers/libro.controller');
 const valoracionController = require('../controllers/valoracion.controller');
 const { isAdmin } = require('../middleware/auth.middleware');
-const { uploadArchivos, handleMulterError } = require('../middleware/upload.middleware');
+const { uploadArchivos, handleMulterError, uploadToCloudService } = require('../middleware/upload.middleware');
 const { validateLibro, validateValoracion } = require('../middleware/joi.validation.middleware');
 const path = require('path');
 
@@ -59,8 +59,8 @@ router.get('/:id/valoraciones/promedio', valoracionController.getPromedioByLibro
 router.post('/:id/valoraciones', validateValoracion, valoracionController.createValoracion);
 
 // Rutas privadas (solo administrador)
-router.post('/', isAdmin, uploadArchivos, handleMulterError, validateLibro, libroController.createLibro);
-router.put('/:id', isAdmin, uploadArchivos, handleMulterError, validateLibro, libroController.updateLibro);
+router.post('/', isAdmin, uploadArchivos, handleMulterError, uploadToCloudService, validateLibro, libroController.createLibro);
+router.put('/:id', isAdmin, uploadArchivos, handleMulterError, uploadToCloudService, validateLibro, libroController.updateLibro);
 router.delete('/:id', isAdmin, libroController.deleteLibro);
 
 module.exports = router; 

@@ -47,6 +47,16 @@ const libroSchema = Joi.object({
       'number.base': 'El ID de género debe ser un número',
       'number.integer': 'El ID de género debe ser un número entero',
       'number.min': 'El ID de género debe ser un número positivo'
+    }),
+    
+  portada_url: Joi.string().allow('').optional()
+    .messages({
+      'string.base': 'La URL de la portada debe ser texto'
+    }),
+    
+  archivo_url: Joi.string().allow('').optional()
+    .messages({
+      'string.base': 'La URL del archivo debe ser texto'
     })
 });
 

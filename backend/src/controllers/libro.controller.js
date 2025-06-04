@@ -84,39 +84,37 @@ const getLibrosByGenero = async (req, res) => {
 // Crear un nuevo libro
 const createLibro = async (req, res) => {
   try {
-    console.log('Files recibidos:', req.files);
-    console.log('Body recibido:', req.body);
+    await testConnection();
     
-    const libroData = {
-      titulo: req.body.titulo,
-      autor: req.body.autor,
-      descripcion: req.body.descripcion,
-      genero_id: req.body.genero_id || null,
-      portada_url: req.files?.portada ? `/uploads/portadas/${req.files.portada[0].filename}` : null,
-      archivo_url: req.files?.archivo ? `/uploads/libros/${req.files.archivo[0].filename}` : null
-    };
-    
-    if (!libroData.titulo || !libroData.autor) {
+    // Verificar que tenemos los datos necesarios
+    if (!req.body.titulo || !req.body.autor) {
       return res.status(400).json({
         success: false,
-        message: 'Título y autor son campos requeridos'
+        message: 'Faltan datos requeridos (título y autor)'
       });
     }
+
+    // Log para debugging
+    console.log('Datos recibidos:', {
+      body: req.body,
+      files: req.files
+    });
+
+    // Crear el libro
+    const result = await libroModel.createLibro(req.body);
     
-    const libroId = await libroModel.createLibro(libroData);
     res.status(201).json({
       success: true,
-      message: 'Libro creado correctamente',
-      libroId,
-      libro: {
-        id: libroId,
-        ...libroData
+      message: 'Libro creado exitosamente',
+      data: {
+        id: result,
+        ...req.body
       }
     });
   } catch (error) {
     console.error('Error al crear libro:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: 'Error al crear el libro',
       error: error.message
     });
@@ -216,4 +214,4 @@ module.exports = {
   createLibro,
   updateLibro,
   deleteLibro
-}; 
+};

@@ -28,9 +28,15 @@ const getLibroById = async (id) => {
 // Crear un nuevo libro
 const createLibro = async (libroData) => {
   const { titulo, autor, descripcion, genero_id, portada_url, archivo_url } = libroData;
+  
+  // Validar que al menos tengamos los campos requeridos
+  if (!titulo || !autor) {
+    throw new Error('Título y autor son requeridos');
+  }
+
   const sql = `
-    INSERT INTO libros (titulo, autor, descripcion, genero_id, portada_url, archivo_url)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO libros (titulo, autor, descripcion, genero_id, portada_url, archivo_url, fecha_subida)
+    VALUES (?, ?, ?, ?, ?, ?, NOW())
   `;
   const result = await query(sql, [titulo, autor, descripcion, genero_id, portada_url, archivo_url]);
   return result.insertId;
