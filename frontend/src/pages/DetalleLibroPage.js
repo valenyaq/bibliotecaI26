@@ -105,14 +105,14 @@ const DetalleLibroPage = () => {
         </button>
       </div>
       
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl">
+      <div className="bg-white shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl">
         <div className="md:flex">
           {/* Imagen del libro */}
           <div className="md:w-1/3 p-4">
             <img 
               src={getPortadaUrl(libro.portada_url, imagenPorDefecto)} 
               alt={libro.titulo}
-              className="w-full h-auto object-cover rounded-lg shadow transition-transform duration-300 hover:scale-105"
+              className="w-full h-auto object-cover shadow"
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = imagenPorDefecto;
@@ -125,16 +125,18 @@ const DetalleLibroPage = () => {
                 <>
                   <Link 
                     to={`/leer/${libro.id}`}
-                    className="block w-full bg-[#a2822b] hover:bg-[#8a6d23] text-white text-center py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
+                    className="block w-full bg-white text-gray-900 text-center py-2 px-4 border-2 border-black transition-all duration-200 hover:bg-gray-100"
                   >
                     Leer Libro
                   </Link>
-                  <button 
-                    onClick={handleDescargarPdf}
-                    className="block w-full bg-green-600 hover:bg-green-700 text-white text-center py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
+                  <a 
+                    href={getPdfDownloadUrl(libro.archivo_url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full bg-[#f5efd7] text-[#8a6d23] text-center py-2 px-4 border-2 border-[#8a6d23] transition-all duration-200 hover:bg-[#f0e9cc]"
                   >
                     Descargar Libro
-                  </button>
+                  </a>
                 </>
               )}
             </div>

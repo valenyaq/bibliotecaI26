@@ -44,16 +44,9 @@ const PdfViewerSimple = ({ url }) => {
       iframeRef.current.contentWindow.postMessage({ command }, '*');
     }
   };
-
   // Construir URL con parámetros para ocultar la barra lateral
   const getViewerUrl = () => {
-    // Si la URL ya incluye un visor personalizado, usarla directamente
-    if (url.includes('viewer.html') || url.includes('/api/libros/ver/')) {
-      return `${url}#pagemode=none&sidebar=0`;
-    }
-    
-    // Si es una URL normal, usar viewer.html para mostrarla sin barra lateral
-    return `/pdfjs/web/viewer.html?file=${encodeURIComponent(url)}#pagemode=none&sidebar=0`;
+    return url; // Usar la URL de Uploadcare directamente
   };
 
   if (!url) {

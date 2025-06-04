@@ -9,10 +9,8 @@ const LibroCard = ({ libro }) => {
   const imagenPorDefecto = '/placeholder-book.png';
 
   // Formatear la valoración
-  const valoracion = valoracion_promedio ? parseFloat(valoracion_promedio).toFixed(1) : 'Sin valoraciones';
-
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-xl hover:-translate-y-1">
+  const valoracion = valoracion_promedio ? parseFloat(valoracion_promedio).toFixed(1) : 'Sin valoraciones';  return (
+    <div className="bg-white shadow-md overflow-hidden transition-all duration-200 hover:ring-1 hover:ring-black">
       <Link to={`/libro/${id}`} className="block h-full">
         <div className="relative pb-[140%]">
           <img 
@@ -24,10 +22,8 @@ const LibroCard = ({ libro }) => {
               e.target.src = imagenPorDefecto;
             }}
           />
-        </div>
-
-        <div className="p-4">
-          <h3 className="font-bold text-lg text-gray-800 hover:text-[#a2822b] truncate">{titulo}</h3>
+        </div>        <div className="p-4">
+          <h3 className="font-bold text-lg text-gray-800 truncate">{titulo}</h3>
           <p className="text-gray-600 text-sm">{autor}</p>
           
           <div className="mt-2 flex justify-between items-center">

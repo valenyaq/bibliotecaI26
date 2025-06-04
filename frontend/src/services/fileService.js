@@ -42,17 +42,7 @@ export const getPortadaUrl = (portadaUrl, defaultImage = '/placeholder-book.png'
  */
 export const getPdfUrl = (archivoUrl) => {
   if (!archivoUrl) return null;
-  
-  // Si es una URL absoluta, devolverla sin cambios
-  if (archivoUrl.startsWith('http://') || archivoUrl.startsWith('https://')) {
-    return archivoUrl;
-  }
-  
-  // Extraer el nombre del archivo de la ruta
-  const filename = archivoUrl.split('/').pop();
-  
-  // Construir la URL para la ruta de visualización directa
-  return `${BASE_URL}/api/libros/ver/${filename}`;
+  return archivoUrl;
 };
 
 /**
@@ -62,17 +52,7 @@ export const getPdfUrl = (archivoUrl) => {
  */
 export const getPdfDownloadUrl = (archivoUrl) => {
   if (!archivoUrl) return null;
-  
-  // Si es una URL absoluta, devolverla sin cambios
-  if (archivoUrl.startsWith('http://') || archivoUrl.startsWith('https://')) {
-    return archivoUrl;
-  }
-  
-  // Extraer el nombre del archivo de la ruta
-  const filename = archivoUrl.split('/').pop();
-  
-  // Construir la URL para la ruta de descarga
-  return `${BASE_URL}/api/libros/descargar/${filename}`;
+  return archivoUrl;
 };
 
 export default {
