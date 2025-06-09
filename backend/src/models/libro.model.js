@@ -122,6 +122,103 @@ const getLibrosByGenero = async (generoId) => {
   return await query(sql, [generoId]);
 };
 
+// Obtener libros paginados (nueva función)
+const getLibrosPaginados = async (page = 1, limit = 12, orderBy = 'fecha_desc') => {
+  const offset = (page - 1) * limit;
+  
+  let orderClause = '';
+  switch (orderBy) {
+    case 'titulo_asc':
+      orderClause = 'l.titulo ASC';
+      break;
+    case 'titulo_desc':
+      orderClause = 'l.titulo DESC';
+      break;
+    case 'autor_asc':
+      orderClause = 'l.autor ASC';
+      break;
+    case 'autor_desc':
+      orderClause = 'l.autor DESC';
+      break;
+    case 'valoracion_desc':
+      orderClause = '(SELECT AVG(puntuacion) FROM valoraciones WHERE libro_id = l.id) DESC';
+      break;
+    case 'fecha_asc':
+      orderClause = 'l.fecha_subida ASC';
+      break;
+    case 'fecha_desc':
+    default:
+      orderClause = 'l.fecha_subida DESC';
+      break;
+  }
+
+  const sql = `
+    SELECT l.*, g.nombre as genero_nombre, 
+    (SELECT AVG(puntuacion) FROM valoraciones WHERE libro_id = l.id) as valoracion_promedio
+    FROM libros l
+    LEFT JOIN generos g ON l.genero_id = g.id
+    ORDER BY ${orderClause}
+    LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}
+  `;
+  return await query(sql, []);
+};
+
+// Obtener total de libros (nueva función)
+const getTotalLibros = async () => {
+  const sql = 'SELECT COUNT(*) as total FROM libros';
+  const result = await query(sql, []);
+  return result[0].total;
+};
+
+// Obtener libros por género paginados (nueva función)
+const getLibrosByGeneroPaginados = async (generoId, page = 1, limit = 12, orderBy = 'fecha_desc') => {
+  const offset = (page - 1) * limit;
+  
+  let orderClause = '';
+  switch (orderBy) {
+    case 'titulo_asc':
+      orderClause = 'l.titulo ASC';
+      break;
+    case 'titulo_desc':
+      orderClause = 'l.titulo DESC';
+      break;
+    case 'autor_asc':
+      orderClause = 'l.autor ASC';
+      break;
+    case 'autor_desc':
+      orderClause = 'l.autor DESC';
+      break;
+    case 'valoracion_desc':
+      orderClause = '(SELECT AVG(puntuacion) FROM valoraciones WHERE libro_id = l.id) DESC';
+      break;
+    case 'fecha_asc':
+      orderClause = 'l.fecha_subida ASC';
+      break;
+    case 'fecha_desc':
+    default:
+      orderClause = 'l.fecha_subida DESC';
+      break;
+  }
+
+  const sql = `
+    SELECT l.*, g.nombre as genero_nombre, 
+    (SELECT AVG(puntuacion) FROM valoraciones WHERE libro_id = l.id) as valoracion_promedio
+    FROM libros l
+    LEFT JOIN generos g ON l.genero_id = g.id
+    WHERE l.genero_id = ?
+    ORDER BY ${orderClause}
+    LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}
+  `;
+  return await query(sql, [generoId]);
+};
+
+// Obtener total de libros por género (nueva función)
+const getTotalLibrosByGenero = async (generoId) => {
+  const sql = 'SELECT COUNT(*) as total FROM libros WHERE genero_id = ?';
+  const result = await query(sql, [generoId]);
+  return result[0].total;
+};
+
 module.exports = {
   getAllLibros,
   getLibroById,
@@ -129,5 +226,9 @@ module.exports = {
   updateLibro,
   deleteLibro,
   searchLibros,
-  getLibrosByGenero
+  getLibrosByGenero,
+  getLibrosPaginados,
+  getTotalLibros,
+  getLibrosByGeneroPaginados,
+  getTotalLibrosByGenero
 }; 

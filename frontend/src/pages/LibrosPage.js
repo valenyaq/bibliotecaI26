@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { getAllLibros, getLibrosByGenero } from '../services/librosService';
+import { useSearchParams } from 'react-router-dom';
+import { getLibrosPaginados, getLibrosByGeneroPaginados } from '../services/librosService';
 import { getAllGeneros } from '../services/generosService';
 import LibroCard from '../components/LibroCard';
 
@@ -10,11 +10,17 @@ const LibrosPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 12
+  });
 
   // Obtener parámetros de la URL
   const generoId = searchParams.get('genero') || '';
   const ordenar = searchParams.get('ordenar') || 'fecha_desc';
+  const page = parseInt(searchParams.get('page')) || 1;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,17 +31,24 @@ const LibrosPage = () => {
         const generosData = await getAllGeneros();
         setGeneros(generosData);
         
-        // Obtener libros según el filtro de género
-        let librosData;
+        // Obtener libros según el filtro de género y ordenación
+        let response;
         if (generoId) {
-          librosData = await getLibrosByGenero(generoId);
+          response = await getLibrosByGeneroPaginados(generoId, page, pagination.itemsPerPage, ordenar);
         } else {
-          librosData = await getAllLibros();
+          response = await getLibrosPaginados(page, pagination.itemsPerPage, ordenar);
         }
         
-        // Ordenar libros según el criterio seleccionado
-        const librosOrdenados = ordenarLibros(librosData, ordenar);
-        setLibros(librosOrdenados);
+        // Los libros ya vienen ordenados del backend
+        setLibros(response.libros);
+        
+        // Actualizar información de paginación
+        setPagination(prevPagination => ({
+          ...prevPagination,
+          currentPage: response.currentPage,
+          totalPages: response.totalPages,
+          totalItems: response.totalItems
+        }));
         
         setLoading(false);
       } catch (err) {
@@ -46,34 +59,7 @@ const LibrosPage = () => {
     };
     
     fetchData();
-  }, [generoId, ordenar]);
-  
-  // Función para ordenar los libros según diferentes criterios
-  const ordenarLibros = (librosData, criterio) => {
-    const librosOrdenados = [...librosData];
-    
-    switch (criterio) {
-      case 'titulo_asc':
-        return librosOrdenados.sort((a, b) => a.titulo.localeCompare(b.titulo));
-      case 'titulo_desc':
-        return librosOrdenados.sort((a, b) => b.titulo.localeCompare(a.titulo));
-      case 'autor_asc':
-        return librosOrdenados.sort((a, b) => a.autor.localeCompare(b.autor));
-      case 'autor_desc':
-        return librosOrdenados.sort((a, b) => b.autor.localeCompare(a.autor));
-      case 'valoracion_desc':
-        return librosOrdenados.sort((a, b) => {
-          const valA = a.valoracion_promedio || 0;
-          const valB = b.valoracion_promedio || 0;
-          return valB - valA;
-        });
-      case 'fecha_asc':
-        return librosOrdenados.sort((a, b) => new Date(a.fecha_subida) - new Date(b.fecha_subida));
-      case 'fecha_desc':
-      default:
-        return librosOrdenados.sort((a, b) => new Date(b.fecha_subida) - new Date(a.fecha_subida));
-    }
-  };
+  }, [generoId, ordenar, page, pagination.itemsPerPage]);
   
   // Actualizar parámetros de búsqueda
   const handleFilterChange = (parametro, valor) => {
@@ -83,6 +69,11 @@ const LibrosPage = () => {
       newParams.set(parametro, valor);
     } else {
       newParams.delete(parametro);
+    }
+    
+    // Resetear a la primera página cuando cambian los filtros (excepto si cambia la página misma)
+    if (parametro !== 'page') {
+        newParams.set('page', '1');
     }
     
     setSearchParams(newParams);
@@ -96,6 +87,14 @@ const LibrosPage = () => {
   // Manejar cambio de ordenamiento
   const handleOrdenarChange = (e) => {
     handleFilterChange('ordenar', e.target.value);
+  };
+
+  // Manejar cambio de página
+  const handlePageChange = (newPage) => {
+      // Asegurarse de que la nueva página esté dentro del rango válido
+      if (newPage >= 1 && newPage <= pagination.totalPages) {
+          handleFilterChange('page', newPage.toString());
+      }
   };
 
   return (
@@ -192,6 +191,58 @@ const LibrosPage = () => {
                 <LibroCard key={libro.id} libro={libro} />
               ))}
             </div>
+
+            {/* Paginación */}
+            {pagination.totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <button
+                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                    disabled={pagination.currentPage === 1}
+                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
+                      pagination.currentPage === 1
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span className="sr-only">Anterior</span>
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4 4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+
+                  {[...Array(pagination.totalPages)].map((_, index) => (
+                    <button
+                      key={index + 1}
+                      onClick={() => handlePageChange(index + 1)}
+                      aria-current={pagination.currentPage === index + 1 ? 'page' : undefined}
+                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        pagination.currentPage === index + 1
+                          ? 'z-10 bg-[#a2822b] border-[#a2822b] text-white'
+                          : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                      }`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                    disabled={pagination.currentPage === pagination.totalPages}
+                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
+                      pagination.currentPage === pagination.totalPages
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span className="sr-only">Siguiente</span>
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </nav>
+              </div>
+            )}
           </>
         )}
       </div>

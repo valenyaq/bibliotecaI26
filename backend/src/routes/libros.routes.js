@@ -7,12 +7,13 @@ const { uploadArchivos, handleMulterError, uploadToCloudService } = require('../
 const { validateLibro, validateValoracion } = require('../middleware/joi.validation.middleware');
 const path = require('path');
 
-// Rutas públicas
-router.get('/', libroController.getAllLibros);
+// Rutas públicas específicas (poner antes que rutas con :id)
+router.get('/paginados', libroController.getLibrosPaginados);
+router.get('/genero/:id/paginados', libroController.getLibrosByGeneroPaginados);
 router.get('/search', libroController.searchLibros);
 router.get('/genero/:id', libroController.getLibrosByGenero);
 
-// Ruta para descargar un PDF directamente (para descarga)
+// Rutas para descargar/ver PDF
 router.get('/descargar/:filename', (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(__dirname, '../../uploads/libros', filename);
@@ -24,11 +25,12 @@ router.get('/descargar/:filename', (req, res) => {
         success: false, 
         message: 'Archivo no encontrado' 
       });
+    } else {
+      console.log('Archivo enviado correctamente para descarga');
     }
   });
 });
 
-// Ruta para servir un PDF directamente (para visualización)
 router.get('/ver/:filename', (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(__dirname, '../../uploads/libros', filename);
@@ -46,14 +48,17 @@ router.get('/ver/:filename', (req, res) => {
         success: false, 
         message: 'Archivo no encontrado' 
       });
+    } else {
+      console.log('PDF servido correctamente');
     }
   });
 });
 
-// Obtener un libro por su ID
-router.get('/:id', libroController.getLibroById);
+// Rutas públicas generales
+router.get('/', libroController.getAllLibros);
 
-// Rutas para valoraciones (públicas)
+// Rutas públicas con ID
+router.get('/:id', libroController.getLibroById);
 router.get('/:id/valoraciones', valoracionController.getValoracionesByLibro);
 router.get('/:id/valoraciones/promedio', valoracionController.getPromedioByLibro);
 router.post('/:id/valoraciones', validateValoracion, valoracionController.createValoracion);

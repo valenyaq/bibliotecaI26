@@ -123,4 +123,24 @@ export const deleteLibro = async (id) => {
   } catch (error) {
     throw error;
   }
+};
+
+// Obtener libros paginados
+export const getLibrosPaginados = async (page = 1, limit = 12, ordenar = 'fecha_desc') => {
+  try {
+    const response = await api.get(`/libros/paginados?page=${page}&limit=${limit}&ordenar=${ordenar}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Obtener libros por género paginados
+export const getLibrosByGeneroPaginados = async (generoId, page = 1, limit = 12, ordenar = 'fecha_desc') => {
+  try {
+    const response = await api.get(`/libros/genero/${generoId}/paginados?page=${page}&limit=${limit}&ordenar=${ordenar}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }; 

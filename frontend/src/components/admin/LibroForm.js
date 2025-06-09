@@ -208,116 +208,116 @@ const LibroForm = ({ libro, onSuccess, onCancel }) => {
       )}
       
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              Título <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="titulo"
-              value={formData.titulo}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              Autor <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="autor"
-              value={formData.autor}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          
-          <div className="md:col-span-2">
-            <label className="block text-gray-700 font-medium mb-2">
-              Descripción
-            </label>
-            <textarea
-              name="descripcion"
-              value={formData.descripcion}
-              onChange={handleChange}
-              rows="4"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            ></textarea>
-          </div>
-          
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              Género
-            </label>
-            <select
-              name="genero_id"
-              value={formData.genero_id}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Seleccionar género</option>
-              {generos.map(genero => (
-                <option key={genero.id} value={genero.id}>
-                  {genero.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              Portada (Imagen)
-            </label>
-            <div className="flex items-center space-x-2">
-              <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">
-                <span>Seleccionar archivo</span>
-                <input
-                  type="file"
-                  name="portada"
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  className="hidden"
-                />
-              </label>
-              <span className="text-sm text-gray-500">
-                {portadaFileName || 'Ningún archivo seleccionado'}
-              </span>
-            </div>
-            
-            {previewPortada && (
-              <div className="mt-3">
-                <img 
-                  src={previewPortada} 
-                  alt="Vista previa" 
-                  className="h-40 object-cover rounded border border-gray-300" 
-                />
+        <div className="flex flex-col md:flex-row gap-8">
+          <div className="md:w-1/2 flex flex-col items-center justify-center relative bg-gray-100 rounded-lg border border-gray-300 p-4 min-h-[300px]">
+            {previewPortada ? (
+              <img
+                src={previewPortada}
+                alt="Vista previa de portada"
+                className="max-h-80 object-contain rounded-lg shadow-md"
+              />
+            ) : (
+              <div className="text-gray-500 text-center flex flex-col items-center justify-center h-full">
+                <svg className="mx-auto h-16 w-16 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L40 32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="mt-2 block text-base font-medium">No hay imagen seleccionada</span>
               </div>
             )}
-          </div>
-          
-          <div className="md:col-span-2">
-            <label className="block text-gray-700 font-medium mb-2">
-              Archivo PDF
+            <label htmlFor="portada" className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer rounded-lg">
+              <span className="text-white text-lg font-semibold mb-2">Seleccionar Portada</span>
+              <span className="text-white text-sm">({portadaFileName || 'Ningún archivo'})</span>
+              <input
+                id="portada"
+                type="file"
+                name="portada"
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+              />
             </label>
-            <div className="flex items-center space-x-2">
-              <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">
-                <span>Seleccionar archivo</span>
-                <input
-                  type="file"
-                  name="archivo"
-                  onChange={handleFileChange}
-                  accept="application/pdf"
-                  className="hidden"
-                />
+          </div>
+
+          <div className="md:w-1/2 grid grid-cols-1 gap-6">
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Título <span className="text-red-500">*</span>
               </label>
-              <span className="text-sm text-gray-500">
-                {archivoFileName || 'Ningún archivo seleccionado'}
-              </span>
+              <input
+                type="text"
+                name="titulo"
+                value={formData.titulo}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Autor <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="autor"
+                value={formData.autor}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            
+            <div className="md:col-span-1">
+              <label className="block text-gray-700 font-medium mb-2">
+                Descripción
+              </label>
+              <textarea
+                name="descripcion"
+                value={formData.descripcion}
+                onChange={handleChange}
+                rows="4"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
+            </div>
+            
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Género
+              </label>
+              <select
+                name="genero_id"
+                value={formData.genero_id}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Seleccionar género</option>
+                {generos.map(genero => (
+                  <option key={genero.id} value={genero.id}>
+                    {genero.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Archivo PDF
+              </label>
+              <div className="flex items-center space-x-2">
+                <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">
+                  <span>Seleccionar archivo</span>
+                  <input
+                    type="file"
+                    name="archivo"
+                    onChange={handleFileChange}
+                    accept="application/pdf"
+                    className="hidden"
+                  />
+                </label>
+                <span className="text-sm text-gray-500">
+                  {archivoFileName || 'Ningún archivo seleccionado'}
+                </span>
+              </div>
             </div>
           </div>
         </div>

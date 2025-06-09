@@ -2,6 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 const { UploadClient } = require('@uploadcare/upload-client');
+const sharp = require('sharp');
 
 // Configurar el cliente de Uploadcare
 const uploadcare = new UploadClient({ 
@@ -31,8 +32,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    let prefix = file.fieldname === 'portada' ? 'portada-' : 'libro-';
-    cb(null, prefix + uniqueSuffix + path.extname(file.originalname));
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
@@ -44,7 +44,7 @@ const fileFilter = (req, file, cb) => {
       'image/jpeg', 
       'image/jpg', 
       'image/png', 
-      'image/webp', 
+      'image/webp',
       'image/gif', 
       'image/svg+xml'
     ];
@@ -86,6 +86,7 @@ const uploadFileToUploadcare = async (filePath, fileName, mimeType) => {
     });
     return result.cdnUrl;
   } catch (error) {
+    console.error('Error detallado al subir archivo a Uploadcare:', error.response ? error.response.data : error.message);
     throw new Error(`Error al subir archivo a Uploadcare: ${error.message}`);
   }
 };
@@ -95,39 +96,64 @@ const cleanupTempFile = async (filePath) => {
   try {
     await fs.unlink(filePath);
   } catch (error) {
-    console.error('Error al eliminar archivo temporal:', error);
+    if (error.code !== 'ENOENT') {
+       console.error('Error al eliminar archivo temporal:', error);
+    }
   }
 };
 
-// Middleware para subir a Uploadcare
+// Middleware para subir a Uploadcare y optimizar portadas
 const uploadToCloudService = async (req, res, next) => {
+  const filesToCleanup = [];
   try {
     if (!req.files) {
       return next();
     }
 
-    // Subir portada si existe
+    // Procesar y subir portada si existe
     if (req.files.portada && req.files.portada[0]) {
       const portadaFile = req.files.portada[0];
-      console.log('Subiendo portada:', portadaFile.originalname);
-      
-      try {
-        req.body.portada_url = await uploadFileToUploadcare(
-          portadaFile.path,
-          portadaFile.originalname,
-          portadaFile.mimetype
-        );
-        await cleanupTempFile(portadaFile.path);
-        console.log('Portada subida exitosamente:', req.body.portada_url);
-      } catch (uploadError) {
-        console.error('Error al subir portada a Uploadcare:', uploadError);
-        throw new Error('Error al subir la portada: ' + uploadError.message);
+      filesToCleanup.push(portadaFile.path);
+
+      console.log('Procesando y subiendo portada:', portadaFile.originalname);
+        try {
+        // Si el archivo ya es WebP, lo usamos directamente
+        if (portadaFile.mimetype === 'image/webp') {
+          req.body.portada_url = await uploadFileToUploadcare(
+            portadaFile.path,
+            portadaFile.originalname,
+            'image/webp'
+          );
+        } else {
+          // Si no es WebP, lo convertimos
+          const webpFileName = `${path.parse(portadaFile.filename).name}.webp`;
+          const webpFilePath = path.join(path.dirname(portadaFile.path), webpFileName);
+          filesToCleanup.push(webpFilePath);
+
+          await sharp(portadaFile.path)
+            .resize(800)
+            .webp({ quality: 80 })
+            .toFile(webpFilePath);
+
+          req.body.portada_url = await uploadFileToUploadcare(
+            webpFilePath,
+            webpFileName,
+            'image/webp'
+          );
+        }
+        console.log('Portada optimizada (WebP) y subida exitosamente:', req.body.portada_url);
+
+      } catch (processError) {
+        console.error('Error al procesar o subir la portada:', processError);
+        throw new Error('Error al procesar o subir la portada: ' + processError.message);
       }
     }
 
-    // Subir PDF si existe
+    // Procesar y subir PDF si existe (sin optimización)
     if (req.files.archivo && req.files.archivo[0]) {
       const archivoFile = req.files.archivo[0];
+      filesToCleanup.push(archivoFile.path);
+
       console.log('Subiendo PDF:', archivoFile.originalname);
       
       try {
@@ -136,7 +162,6 @@ const uploadToCloudService = async (req, res, next) => {
           archivoFile.originalname,
           archivoFile.mimetype
         );
-          await cleanupTempFile(archivoFile.path);
         console.log('PDF subido exitosamente:', req.body.archivo_url);
       } catch (uploadError) {
         console.error('Error al subir PDF a Uploadcare:', uploadError);
@@ -147,20 +172,20 @@ const uploadToCloudService = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Error en uploadToCloudService:', error);
-      // Limpiar archivos temporales en caso de error
-    if (req.files) {
-      for (const files of Object.values(req.files)) {
-        for (const file of files) {
-          await cleanupTempFile(file.path);
-        }
-      }
-    }
     
+    for (const filePath of filesToCleanup) {
+        await cleanupTempFile(filePath);
+    }
+
     return res.status(500).json({
       success: false,
-      message: 'Error al subir archivos',
+      message: 'Error en el procesamiento/subida de archivos',
       error: error.message
     });
+  } finally {
+      for (const filePath of filesToCleanup) {
+          await cleanupTempFile(filePath);
+      }
   }
 };
 

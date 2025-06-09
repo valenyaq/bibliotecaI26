@@ -206,6 +206,73 @@ const deleteLibro = async (req, res) => {
   }
 };
 
+// Obtener libros paginados (nuevo controlador)
+const getLibrosPaginados = async (req, res) => {
+  try {
+    await testConnection();
+    
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const ordenar = req.query.ordenar || 'fecha_desc'; // Leer parámetro de ordenación
+    
+    const [libros, totalItems] = await Promise.all([
+      libroModel.getLibrosPaginados(page, limit, ordenar), // Pasar parámetro de ordenación al modelo
+      libroModel.getTotalLibros()
+    ]);
+    
+    const totalPages = Math.ceil(totalItems / limit);
+    
+    res.json({
+      libros,
+      currentPage: page,
+      totalPages,
+      totalItems,
+      itemsPerPage: limit,
+      ordenar // Devolver el criterio de ordenación actual
+    });
+  } catch (error) {
+    console.error('Error al obtener libros paginados:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al obtener los libros',
+      error: error.message
+    });
+  }
+};
+
+// Obtener libros por género paginados (nuevo controlador)
+const getLibrosByGeneroPaginados = async (req, res) => {
+  try {
+    const generoId = req.params.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const ordenar = req.query.ordenar || 'fecha_desc'; // Leer parámetro de ordenación
+    
+    const [libros, totalItems] = await Promise.all([
+      libroModel.getLibrosByGeneroPaginados(generoId, page, limit, ordenar), // Pasar parámetro de ordenación al modelo
+      libroModel.getTotalLibrosByGenero(generoId)
+    ]);
+    
+    const totalPages = Math.ceil(totalItems / limit);
+
+    res.json({
+      libros,
+      currentPage: page,
+      totalPages,
+      totalItems,
+      itemsPerPage: limit,
+      ordenar // Devolver el criterio de ordenación actual
+    });
+  } catch (error) {
+    console.error(`Error al obtener libros paginados del género ${req.params.id}:`, error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al obtener libros por género',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllLibros,
   getLibroById,
@@ -213,5 +280,7 @@ module.exports = {
   getLibrosByGenero,
   createLibro,
   updateLibro,
-  deleteLibro
+  deleteLibro,
+  getLibrosPaginados,
+  getLibrosByGeneroPaginados
 };
